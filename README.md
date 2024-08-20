@@ -1,6 +1,8 @@
 # c300x-dashboard
 
-This project aims to bring some additional touch functionality to the Bticino C300X intercom to control other home automation devices from the intercom.
+This project aims to bring some additional touch functionality to the Bticino C300X intercom in order to control other home automation devices from the GUI interface.
+
+![image](https://github.com/user-attachments/assets/acc158c9-7ec9-429f-9f4e-07eecbf9b31a)
 
 Bticino c100x devices are untested at this point.
 
@@ -11,7 +13,7 @@ The version of Qt is 4.8.7 and you can download the software/documentation at ht
 The intercom queries [c300x-controller](https://github.com/slyoldfox/c300x-controller/tree/main) for data, because the intercom can only query *http* hosts and does not handle SSL connections.
 The c300-controller aggregates data gathered from different sources and serves them to the GUI.
 
-By default the dashboard will query `http://localhost:8080/` but you can serve your own JSON file by changing the `url` field in the `js/ha.js` file. Of course the content structure must be the same and looks like this:
+By default, the dashboard will query `http://localhost:8080/` but you can serve your own JSON file by changing the `url` field in the `js/ha.js` file. Of course the content structure must be the same and looks like this:
 
 ```json
 {
@@ -66,7 +68,7 @@ By default the dashboard will query `http://localhost:8080/` but you can serve y
     ],    
   },
   "preventReturnToHomepage": true, // optional
-  "refreshInterval": 2000, //optional
+  "refreshInterval": 2000,         //optional
 }
 ```
 
@@ -74,12 +76,10 @@ As you can see the page is divided into 4 sections and are displayed in this ord
 
 - Badges: these display states of an entity
 - Images: displays images (for example security cameras)
-- Buttons: for action buttons which don't hold an on/off state
 - Switches: on/off switches which also hold the on/off state
+- Buttons: for action buttons which don't hold an on/off state
 
 If you have HomeAssistant, you can configure c300x-controller to fetch data from there and display it on the intercom.
-
-
 
 #### 1. Configuring c300x-controller
 
