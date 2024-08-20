@@ -15,7 +15,7 @@ var debuglines = []
 function loadData(debugItem, status, badgesItem, switchesItem, buttonsItem, imagesItem, badgeTimer, time, global) {
     time.text = date()
     get(debugItem, status, url + "/homeassistant?raw=true&items=buttons,badges,switches,images", function (data) {
-        returnToHomePage = !data["preventReturnToHomepage"] ||
+        returnToHomePage = !data["preventReturnToHomepage"]
         badgeTimer.interval = data["refreshInterval"] || 2000
         var dataItem = data["data"]
         buttonsItem.model = dataItem["buttons"] || []
