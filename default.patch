@@ -1,0 +1,44 @@
+--- orig/HomePage.qml
++++ default/HomePage.qml
+@@ -715,6 +715,18 @@
+                 }
+                 onTouched: tabView.activateTab(settingsPage)
+             }
++
++            BasicButton {
++                objectName: "haButton"
++                style: HomePageButtonStyle {
++                    pressedImage: "images/function_btn_p.svg"
++                    pressedIcon: "images/settings_icon_p.svg"
++                    defaultIcon: "images/settings_icon.svg"
++                    defaultImage: "images/function_btn.svg"
++                    description: "HomeAssistant"
++                }
++                onTouched: tabView.activateTab(haPage)
++            }
+         }
+     }
+ 
+--- orig/MainApp.qml
++++ default/MainApp.qml
+@@ -13,6 +13,7 @@
+         tabs: [
+             homePage,
+             settingsPage,
++            haPage,
+             audiocallPage,
+             memoPage,
+             readMemo,
+@@ -110,6 +111,11 @@
+     PageLoader {
+         id: settingsPage
+         sourceUrl: "Settings.qml"
++    }
++
++    PageLoader {
++        id: haPage
++        sourceUrl: "HomeAssistant.qml"
+     }
+ 
+     PageLoader {
+Only in default: js/ha.js
