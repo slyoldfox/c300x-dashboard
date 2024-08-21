@@ -20,64 +20,69 @@ By default, the dashboard will query `http://localhost:8080/` but you can serve 
   "preventReturnToHomepage": true,    // optional
   "refreshInterval": 2000,            // optional  
   "data": {
-    "badges": [
+    "pages": [
       {
-        "state": "Garden\n21.6°C"
-      },
-      {
-        "state": "⚡-\n0.283kW"
-      },
-      {
-        "state": "⚡+\n0.0kW"
-      },
-      {
-        "state": "☀️⚡\n161.64W"
+        "badges": [
+          {
+            "state": "Garden\n21.6°C"
+          },
+          {
+            "state": "⚡-\n0.283kW"
+          },
+          {
+            "state": "⚡+\n0.0kW"
+          },
+          {
+            "state": "☀️⚡\n161.64W"
+          }
+        ],
+        "images": [
+          {
+            "width": 300,
+            "height": 170,
+            "source": "http://192.168.0.XX/some/camera.img?width=300" // Must be http !
+          }
+        ],
+        "buttons": [
+          {
+            "domain": "light",
+            "entity_id": "light.shelly_lamp_switch_0",
+            "name": "TV"
+          },
+          {
+            "domain": "light",
+            "entity_id": "light.shelly_lamp_switch_0,light.mss425e_8575_outlet_1",
+            "name": "☀️⚡ 💡 ! Living"
+          },
+          {
+            "domain": "cover",
+            "entity_id": "cover.living",
+            "name": "Screen Living"
+          }
+        ],
+        "switches": [
+          {
+            "entity_id": "light.shelly_lamp_switch_0",
+            "domain": "light",
+            "name": "TV",
+            "state": false
+          }
+        ]
       }
-    ],
-    "images": [
-      {
-        "width": 300,
-        "height": 170,
-        "source": "http://192.168.0.XX/some/camera.img?width=300" // Must be http !
-      }
-    ],    
-    "buttons": [
-      {
-        "domain": "light",
-        "entity_id": "light.shelly_lamp_switch_0",
-        "name": "TV"
-      },
-      {
-        "domain": "light",
-        "entity_id": "light.shelly_lamp_switch_0,light.mss425e_8575_outlet_1",
-        "name": "☀️⚡ 💡 ! Living"
-      },
-      {
-        "domain": "cover",
-        "entity_id": "cover.living",
-        "name": "Screen Living"
-      }
-    ],
-    "switches": [
-      {
-        "entity_id": "light.shelly_lamp_switch_0",
-        "domain": "light",
-        "name": "TV",
-        "state": false
-      }
-    ],    
-  },
-  "preventReturnToHomepage": true, // optional
-  "refreshInterval": 2000,         //optional
+    ]
+  }
 }
 ```
 
-As you can see the page is divided into 4 sections and are displayed in this order:
+As you can see the page is divided into pages, each page can have 4 sections and are displayed in this order:
 
 - Badges: these display states of an entity
 - Images: displays images (for example security cameras)
 - Switches: on/off switches which also hold the on/off state
 - Buttons: for action buttons which don't hold an on/off state
+
+If you omit a section, the rendering for this section will be empty. 
+If you provide more than one page, a pager in the lower left bottom will be shown.
 
 If you have HomeAssistant, you can configure c300x-controller to fetch data from there and display it on the intercom.
 
@@ -91,60 +96,64 @@ Make sure you have at least version *2024.8.1* and configure the `homeassistant`
     "preventReturnToHomepage": true,  // Not required, will keep the HomeAssistant page active, when intercom screen turns off 
     "token": "PUT_YOUR_TOKEN_HERE",   // Required, Long-lived access token from https://homeassistant/profile/security
     "url": "https://homeassistant/",  // Required, base url of your HomeAssistant endpoint
-    "badges": [
+    "pages": [
       {
-        "entity_id": "sensor.kmi_temp",
-        // Return an array of fields that will be displayed on the intercom
-        // Items prefixed with "f:" will fetch the json value
-        "state": ["KMI", "\n", "f:state", "f:attributes.unit_of_measurement"]
-      },
-      {
-        // This example fetches the data from another url, it must return a "state" field and "attributes" field with a nested "unit_of_measurement" field
-        "url": "https://192.168.0.XX:8123/api/states/sensor.power_production",
-        "state": ["⚡+", "\n", "f:state", "f:attributes.unit_of_measurement"]
-      },
-      {
-        "entity_id": "sensor.modbus_ac_power",
-        "state": ["☀️⚡", "\n", "f:state", "f:attributes.unit_of_measurement"],
-        "when": "$state > 0"  // This will only include the entity if the field "state" > 0 
-      },
-      // Fetch the entity and return "state"
-      "sensor.shellyem_a4e57cba5163_channel_1_power"
-    ],
-    "buttons": [
-      {
-        // Will use the toggle service on HA to toggle an entity in a specific domain
-        "domain": "light",
-        "entity_id": "light.shelly_lamp_switch_0",
-        "name": "TV"
-      },
-      {
-        // This will toggle multiple entities seperated by a comma
-        "domain": "light",
-        "entity_id": "light.shelly_lamp_switch_0,light.mss425e_8575_outlet_1",
-        "name": "☀️⚡ 💡 ! Living"
-      },
-      {
-        "domain": "cover",
-        "entity_id": "cover.living",
-        "name": "Screen Living"
-      }
-    ],
-    "images": [
-      {
-        "width": 300,
-        "height": 170,
-        // You can use the scrypted webhook endpoint to get a snapshot of your security camera
-        "source": "http://192.168.0.XX:11080/endpoint/@scrypted/webhook/public/XXX/fffffffffff/takePicture?parameters=[{\"picture\":{\"width\":300}}]"
-      }
-    ],
-    "switches": [
-      {
-        "domain": "light",
-        "entity_id": "light.shelly_lamp_switch_0",
-        "name": "TV",
-        // Only include the item when state matches a simple condition
-        "when": "$state != 'off'"  
+        "badges": [
+          {
+            "entity_id": "sensor.kmi_temp",
+            // Return an array of fields that will be displayed on the intercom
+            // Items prefixed with "f:" will fetch the json value
+            "state": ["KMI", "\n", "f:state", "f:attributes.unit_of_measurement"]
+          },
+          {
+            // This example fetches the data from another url, it must return a "state" field and "attributes" field with a nested "unit_of_measurement" field
+            "url": "https://192.168.0.XX:8123/api/states/sensor.power_production",
+            "state": ["⚡+", "\n", "f:state", "f:attributes.unit_of_measurement"]
+          },
+          {
+            "entity_id": "sensor.modbus_ac_power",
+            "state": ["☀️⚡", "\n", "f:state", "f:attributes.unit_of_measurement"],
+            "when": "$state > 0"  // This will only include the entity if the field "state" > 0 
+          },
+          // Fetch the entity and return "state"
+          "sensor.shellyem_a4e57cba5163_channel_1_power"
+        ],
+        "buttons": [
+          {
+            // Will use the toggle service on HA to toggle an entity in a specific domain
+            "domain": "light",
+            "entity_id": "light.shelly_lamp_switch_0",
+            "name": "TV"
+          },
+          {
+            // This will toggle multiple entities seperated by a comma
+            "domain": "light",
+            "entity_id": "light.shelly_lamp_switch_0,light.mss425e_8575_outlet_1",
+            "name": "☀️⚡ 💡 ! Living"
+          },
+          {
+            "domain": "cover",
+            "entity_id": "cover.living",
+            "name": "Screen Living"
+          }
+        ],
+        "images": [
+          {
+            "width": 300,
+            "height": 170,
+            // You can use the scrypted webhook endpoint to get a snapshot of your security camera
+            "source": "http://192.168.0.XX:11080/endpoint/@scrypted/webhook/public/XXX/fffffffffff/takePicture?parameters=[{\"picture\":{\"width\":300}}]"
+          }
+        ],
+        "switches": [
+          {
+            "domain": "light",
+            "entity_id": "light.shelly_lamp_switch_0",
+            "name": "TV",
+            // Only include the item when state matches a simple condition
+            "when": "$state != 'off'"
+          }
+        ]
       }
     ]
   }  

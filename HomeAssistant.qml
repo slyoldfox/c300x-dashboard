@@ -11,26 +11,25 @@ Page {
     headerLabel: "HomeAssistant" + trsl.empty
 
     function aboutToShow() {
-	    Utils.loadData(debug, status, badges, switches, buttons, images, badgeTimer, time, global)
+        Utils.loadData(debug, status, pager, pagerText, badges, switches, buttons, images, badgeTimer, time, global)
         badgeTimer.start()
     }
 
     function handleScreenOff() {
         var shouldReturn = Utils.handleScreenOff()
-	    if(!shouldReturn) {
+        if(!shouldReturn) {
             badgeTimer.stop()
-	    }
-	    return shouldReturn;
+        }
+        return shouldReturn;
     }
 
     Column {
-	    id: column
         anchors.top: backButton.bottom
-	    anchors.left: parent.left
-	    anchors.right: parent.right
+        anchors.left: parent.left
+        anchors.right: parent.right
         Flow {
             anchors.left: parent.left
-	        anchors.right: parent.right
+            anchors.right: parent.right
             Repeater {
                 id: badges
                 Rectangle {
@@ -60,8 +59,8 @@ Page {
                 Image {
                     cache: false
                     visible: true
-		            width: modelData.width
-		            height: modelData.height
+                    width: modelData.width
+                    height: modelData.height
                     source: modelData.source
                 }
             }
@@ -76,7 +75,7 @@ Page {
                     width: 200; height: 50
                     UbuntuLightText {
                         font.pixelSize: 18
-                	    width: 50
+                        width: 50
                         color: "white"
                         text: modelData.name
                         anchors {
@@ -104,8 +103,8 @@ Page {
                             checkedIconRight: "images/ringtones/switch_btn_p.svg"
                         }
                         onTouched: {
-				            Utils.toggle(debug, status, modelData)
-			            }
+                            Utils.toggle(debug, status, modelData)
+                        }
                     }
                 }
             }
@@ -135,19 +134,19 @@ Page {
             id: badgeTimer
             interval: 2000; running: true; repeat: true
             onTriggered: {
-		        Utils.loadData(debug, status, badges, switches, buttons, images, badgeTimer, time, global)
+                Utils.loadData(debug, status, pager, pagerText, badges, switches, buttons, images, badgeTimer, time, global)
             }
         }
 
         UbuntuLightText {
             id: status
-	        text: ""
+            text: ""
             color: "white"
             font.pixelSize: 16
             anchors.left: parent.left
             anchors.leftMargin: 10
         }
-    
+
         UbuntuLightText {
             id: time
             color: "white"
@@ -167,47 +166,74 @@ Page {
         anchors.left: page.left
         anchors.right: page.right
         Text {
-	        z: 1
+            z: 1
             id: debug
             text: "// debug console"
             color: "white"
             font.pixelSize: 12
             anchors.left: parent.left
             anchors.leftMargin: 3
-        }      
+        }
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 rect.color = "blue"
             }
-        }  
+        }
     }
+
+      Rectangle {
+        width: 75
+        height: 40
+        color: "black"
+        id: pager
+        visible: false
+        anchors.bottom: page.bottom
+        anchors.left: page.left
+        Text {
+            z: 1
+            text: ""
+            color: "white"
+            id: pagerText
+            font.pixelSize: 18
+            anchors.top: parent.top
+            anchors.topMargin: 6
+            anchors.left: parent.left
+            anchors.leftMargin: 5
+        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                Utils.handlePaging(debug, pagerText, badges, switches, buttons, images)
+            }
+        }
+    }
+
 
     Rectangle {
         width: 30
         height: 30
         color: "red"
         id: debugButton
-	    visible: Utils.showDebugConsole()
-         
+        visible: Utils.showDebugConsole()
+
         anchors.bottom: page.bottom
         anchors.right: page.right
         Text {
-	        z: 1
+            z: 1
             text: "D"
             color: "black"
             font.pixelSize: 18
             font.bold: true
             anchors.left: parent.left
             anchors.leftMargin: 3
-        }      
+        }
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                console.log("foo: " + debugContainer.visible)
                 debugContainer.visible = !debugContainer.visible
             }
-        }   
+        }
     }
 }
 

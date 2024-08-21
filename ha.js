@@ -11,27 +11,45 @@ var returnToHomePage = true
 
 var connections = []
 var debuglines = []
+var currentPage = 0
+var dataPages = []
 
-function loadData(debugItem, status, badgesItem, switchesItem, buttonsItem, imagesItem, badgeTimer, time, global) {
+function handlePaging(debugItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem) {
+    currentPage++
+    if (currentPage >= dataPages.length) {
+        currentPage = 0
+    }
+    loadPage(pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem)
+}
+
+function loadPage(pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem) {
+    var dataItem = dataPages[currentPage]
+    buttonsItem.model = dataItem["buttons"] || []
+    badgesItem.model = dataItem["badges"] || []
+    switchesItem.model = dataItem["switches"] || []
+    var images = dataItem["images"] || []
+    var i = images.length
+    while (i--) {
+        if (images[i].source.indexOf("?") > 0) {
+            images[i].source += "&time=" + Date.now()
+        } else {
+            images[i].source += "?time=" + Date.now()
+        }
+    }
+    imagesItem.model = images
+    pagerTextItem.text = "Page " + (currentPage + 1)
+}
+
+function loadData(debugItem, status, pagerItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem, badgeTimer, time, global) {
     time.text = date()
     get(debugItem, status, url + "/homeassistant?raw=true&items=buttons,badges,switches,images", function (data) {
         returnToHomePage = !data["preventReturnToHomepage"]
         badgeTimer.interval = data["refreshInterval"] || 2000
-        var dataItem = data["data"]
-        buttonsItem.model = dataItem["buttons"] || []
-        badgesItem.model = dataItem["badges"] || []
-        switchesItem.model = dataItem["switches"] || []
-        var images = dataItem["images"] || []
-        var i = images.length
-        while (i--) {
-            if (images[i].source.indexOf("?") > 0) {
-                images[i].source += "&time=" + Date.now()
-            } else {
-                images[i].source += "?time=" + Date.now()
-            }
+        dataPages = data["data"].pages || []
+        if (dataPages.length > 0) {
+            pagerItem.visible = true
         }
-        imagesItem.model = images
-        debug(debugItem, imagesItem.data.length)
+        loadPage(pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem)
     })
 }
 
