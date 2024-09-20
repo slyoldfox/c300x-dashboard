@@ -14,47 +14,68 @@ var debuglines = []
 var currentPage = 0
 var dataPages = []
 
-function handlePaging(debugItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem) {
+function handlePaging(debugItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem, flowEntitiesItem, flowLinesItem, flowWrapperItem) {
     currentPage++
-    if (currentPage >= dataPages.length) {
+    if(currentPage >= dataPages.length ) {
         currentPage = 0
     }
-    loadPage(pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem)
+    flowLinesItem.model = undefined
+    loadPage(debugItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem, flowEntitiesItem, flowLinesItem, flowWrapperItem)
 }
 
-function loadPage(pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem) {
-    var dataItem = dataPages[currentPage]
-    buttonsItem.model = dataItem["buttons"] || []
-    badgesItem.model = dataItem["badges"] || []
-    switchesItem.model = dataItem["switches"] || []
-    var images = dataItem["images"] || []
-    var i = images.length
-    while (i--) {
-        if (images[i].source.indexOf("?") > 0) {
-            images[i].source += "&time=" + Date.now()
+function loadPage(debugItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem, flowEntitiesItem, flowLinesItem, flowWrapperItem) {
+        var dataItem = dataPages[currentPage]
+        buttonsItem.model = dataItem["buttons"] || []
+        badgesItem.model = dataItem["badges"] || []
+        switchesItem.model = dataItem["switches"] || []
+        var flowItem = dataItem["flow"] || []
+        applyQmlProperty( flowWrapperItem, flowItem, "color")
+        applyQmlProperty( flowWrapperItem, flowItem, "width")
+        applyQmlProperty( flowWrapperItem, flowItem, "height")
+        flowEntitiesItem.model = flowItem["items"] || []
+
+        if( !flowLinesItem.model || flowLinesItem.model.length === 0 ) {
+               flowLinesItem.model = flowItem["lines"] || []
         } else {
-            images[i].source += "?time=" + Date.now()
+               debug(debugItem, "not refreshing lines: " + flowLinesItem.model.length )
         }
-    }
-    imagesItem.model = images
-    pagerTextItem.text = "Page " + (currentPage + 1)
+        var images = dataItem["images"] || []
+        var i = images.length
+        while (i--) {
+            if (images[i].source.indexOf("?") > 0) {
+                images[i].source += "&time=" + Date.now()
+            } else {
+                images[i].source += "?time=" + Date.now()
+            }
+        }
+        imagesItem.model = images
+        pagerTextItem.text = "Page " + (currentPage+1) + "/" + dataPages.length
 }
 
-function loadData(debugItem, status, pagerItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem, badgeTimer, time, global) {
+function loadData(debugItem, status, pagerItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem, flowEntitiesItem, flowLinesItem, flowWrapperItem, badgeTimer, time, global) {
     time.text = date()
-    get(debugItem, status, url + "/homeassistant?raw=true&items=buttons,badges,switches,images", function (data) {
+    get(debugItem, status, url + "/homeassistant?raw=true", function (data) {
         returnToHomePage = !data["preventReturnToHomepage"]
         badgeTimer.interval = data["refreshInterval"] || 2000
         dataPages = data["data"].pages || []
-        if (dataPages.length > 0) {
-            pagerItem.visible = true
+        if(dataPages.length >  0) {
+                pagerItem.visible = true
         }
-        loadPage(pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem)
+        loadPage(debugItem, pagerTextItem, badgesItem, switchesItem, buttonsItem, imagesItem, flowEntitiesItem, flowLinesItem, flowWrapperItem)
     })
 }
 
 function handleScreenOff() {
     return !returnToHomePage
+}
+
+function applyQmlProperty(targetObject, property, propertyName) {
+    if( property[propertyName] ) {
+        targetObject.visible = true
+        targetObject[propertyName] = property[propertyName]
+    } else {
+        targetObject.visible = false
+    }
 }
 
 function get(debugItem, status, url, callback) {
@@ -73,9 +94,9 @@ function get(debugItem, status, url, callback) {
     connections.push(xhr)
     xhr.startTime = Date.now()
     xhr.onreadystatechange = function (e) {
-        if (xhr.readyState == 4) {
+        if (xhr.readyState === 4) {
             debug(debugItem, "readyState: " + xhr.readyState + " / status: " + xhr.status)
-            if (xhr.status == 200) {
+            if (xhr.status === 200) {
                 status.text = "API Connected"
                 status.color = "green"
                 var data = JSON.parse(xhr.responseText)

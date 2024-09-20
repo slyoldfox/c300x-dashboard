@@ -11,7 +11,7 @@ Page {
     headerLabel: "HomeAssistant" + trsl.empty
 
     function aboutToShow() {
-        Utils.loadData(debug, status, pager, pagerText, badges, switches, buttons, images, badgeTimer, time, global)
+        Utils.loadData(debug, status, pager, pagerText, badges, switches, buttons, images, flowEntities, flowLines, flowWrapper, badgeTimer, time, global)
         badgeTimer.start()
     }
 
@@ -27,6 +27,68 @@ Page {
         anchors.top: backButton.bottom
         anchors.left: parent.left
         anchors.right: parent.right
+        Flow {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            Rectangle {
+                id: flowWrapper
+                Repeater {
+                    id: flowLines
+                    PathView {
+                        visible: true
+                        id: pathView
+                        property variant lineColor: modelData.lineColor;
+                        model: modelData.numberOfDots;
+                        path: Path {
+                            startX: modelData.startX
+                            startY: modelData.startY
+                            PathQuad { x: modelData.x; y:modelData.y; controlX: modelData.controlX; controlY:modelData.controlY}
+                        }
+                        delegate: Rectangle {
+                            property variant modelData: flowLines.model[pathView.modelIndex] 
+                            width: 2; height: 2;
+                            color: pathView.lineColor;
+                        }
+                    }
+                }
+                Repeater {
+                    id: flowEntities
+                    Rectangle {
+                        anchors {
+                            left: parent.left
+                            top: parent.top
+                            leftMargin: modelData.leftMargin
+                            topMargin: modelData.topMargin
+                        }
+                        radius: 50
+                        width: 100
+                        height: 100
+                        color: modelData.backgroundColor || "transparent"
+                        border.color: modelData.borderColor || "transparent"
+                        border.width: modelData.borderWidth || 2
+                        UbuntuLightText {
+                            text: modelData.labelText || ""
+                            font.pixelSize: 14
+                            font.bold: true
+                            color: "grey"
+                            anchors.top: parent.top
+                            anchors.topMargin: modelData.labelTopMargin || - 20
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                        UbuntuLightText {
+                            font.pixelSize: modelData.textSize || 16
+                            font.bold: modelData.textBold || true
+                            anchors.verticalCenter: modelData.extraMargin ? undefined : parent.verticalCenter
+                            anchors.top: modelData.extraMargin ? parent.top : undefined
+                            anchors.topMargin: modelData.extraMargin || undefined
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            text: modelData.state
+                            color: modelData.textColor || "black"
+                        }
+                    }
+                }            
+            }        
+        }
         Flow {
             anchors.left: parent.left
             anchors.right: parent.right
@@ -134,7 +196,7 @@ Page {
             id: badgeTimer
             interval: 2000; running: true; repeat: true
             onTriggered: {
-                Utils.loadData(debug, status, pager, pagerText, badges, switches, buttons, images, badgeTimer, time, global)
+                Utils.loadData(debug, status, pager, pagerText, badges, switches, buttons, images, flowEntities, flowLines, flowWrapper, badgeTimer, time, global)
             }
         }
 
@@ -146,7 +208,7 @@ Page {
             anchors.left: parent.left
             anchors.leftMargin: 10
         }
-
+    
         UbuntuLightText {
             id: time
             color: "white"
@@ -173,20 +235,20 @@ Page {
             font.pixelSize: 12
             anchors.left: parent.left
             anchors.leftMargin: 3
-        }
+        }      
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 rect.color = "blue"
             }
-        }
+        }  
     }
 
       Rectangle {
-        width: 75
+        width: 100
         height: 40
         color: "black"
-        id: pager
+        id: pager 
         visible: false
         anchors.bottom: page.bottom
         anchors.left: page.left
@@ -196,17 +258,15 @@ Page {
             color: "white"
             id: pagerText
             font.pixelSize: 18
-            anchors.top: parent.top
-            anchors.topMargin: 6
-            anchors.left: parent.left
-            anchors.leftMargin: 5
-        }
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+        }      
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                Utils.handlePaging(debug, pagerText, badges, switches, buttons, images)
+                Utils.handlePaging(debug, pagerText, badges, switches, buttons, images, flowEntities, flowLines, flowWrapper)
             }
-        }
+        }   
     }
 
 
@@ -216,7 +276,7 @@ Page {
         color: "red"
         id: debugButton
         visible: Utils.showDebugConsole()
-
+         
         anchors.bottom: page.bottom
         anchors.right: page.right
         Text {
@@ -227,13 +287,13 @@ Page {
             font.bold: true
             anchors.left: parent.left
             anchors.leftMargin: 3
-        }
+        }      
         MouseArea {
             anchors.fill: parent
             onClicked: {
                 debugContainer.visible = !debugContainer.visible
             }
-        }
+        }   
     }
 }
 
