@@ -4,6 +4,9 @@ This project aims to bring some additional touch functionality to the Bticino C3
 
 ![image](https://github.com/user-attachments/assets/acc158c9-7ec9-429f-9f4e-07eecbf9b31a)
 
+![IMG_7430](https://github.com/user-attachments/assets/0a36c9cb-6afc-4536-8eb4-fc3db2e159ea)
+
+
 Bticino c100x devices are untested at this point.
 
 The GUI on the intercom is built on Qt with QtQuick. The markup is done with the QML language.
